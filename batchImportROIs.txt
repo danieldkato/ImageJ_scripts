@@ -1,3 +1,4 @@
+macro "Batch Import ROIs..."{
 folder = getDirectory("Input directory");
 
 print(folder);
@@ -25,4 +26,5 @@ function processFile(input){
 	print("open="+input);
 	run("XY Coordinates... ", "open="+input);
 	roiManager("Add");
+}
 }

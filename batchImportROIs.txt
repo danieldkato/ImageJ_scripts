@@ -1,3 +1,33 @@
+// Last updated DDK 2016-09-26
+
+// OVERVIEW:
+// Use this macro to import batches of text files containing coordinates for different ROIs. 
+
+
+// REQUIREMENTS:
+// 1) Fiji, available at http://fiji.sc/
+
+// The text files to be imported must be formatted as 2-column .txt files where each row
+// represents a point that defines the contours of the ROI, and the first and second 
+// columns define the X- and Y- coordinates, respectively, of each point. All .txt 
+// files to be imported in the same batch must be contained within the same directory
+// containing no other files. 
+
+
+// INSTRUCTIONS:
+// In an instance of Fiji, open the original file over which the ROIs are to be overlaid.
+// Then, install this macro. The macro can either be installed permanently or only for 
+// the current Fiji session. 
+
+// To install the macro permanently, copy and paste the code below into 
+// Fiji.app/macros/StartupMacros.fiji. To install the macro only for the current Fiji
+// session, go to Plugins>Macros>Install... and select this file. 
+
+// Once the macro has been installed, go to Plugins>Macros>Batch Import ROIs... and 
+// select the directory containing the .txt files to be imported. Check 'Show all' in
+// ROI manager to see all ROIs simultaneously.
+
+
 macro "Batch Import ROIs..."{
 folder = getDirectory("Input directory");
 

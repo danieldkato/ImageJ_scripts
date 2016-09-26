@@ -25,11 +25,11 @@
 % overwrite the existing directory, create a new directory, or cancel the
 % operation. 
 
-% These .txt can then be loaded one at a time into Fiji using File>Import>XY
+% These .txt files can then be loaded one at a time into Fiji using File>Import>XY
 % Coordinates... . Alternatively, they can be imported as a batch using the
 % Batch Import ROIs macro, available at: 
 
-% https://github.com/danieldkato/cse2Fiji/blob/master/importROIs.txt
+% https://github.com/danieldkato/cse2Fiji/blob/master/batchImportROIs.txt
 
 
 

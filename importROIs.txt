@@ -1,0 +1,28 @@
+folder = getDirectory("Input directory");
+
+print(folder);
+for (i = 0; i < lengthOf(folder); i++){
+	if (substring(folder, i, i+1) == '\\'){
+		folder = substring(folder, 0, i+1) + substring(folder, i, lengthOf(folder));
+		i = i+1;
+	}
+}
+print(folder);
+
+processFolder(folder);
+
+function processFolder(folder){
+	list = getFileList(folder);
+	//print(list.length);
+	run("ROI Manager...");
+	for(j = 0; j < list.length; j++){
+		//print(folder + list[j]);
+		processFile(folder + list[j]);
+	}
+}
+
+function processFile(input){
+	print("open="+input);
+	run("XY Coordinates... ", "open="+input);
+	roiManager("Add");
+}

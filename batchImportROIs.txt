@@ -8,10 +8,10 @@
 // 1) Fiji, available at http://fiji.sc/
 
 // The text files to be imported must be formatted as 2-column .txt files where each row
-// represents a point that defines the contours of the ROI, and the first and second 
-// columns define the X- and Y- coordinates, respectively, of each point. All .txt 
-// files to be imported in the same batch must be contained within the same directory
-// containing no other files. 
+// represents a point in the contour of the ROI, and the first and second columns define 
+// the X- and Y- coordinates, respectively, of each point. All .txt files to be imported 
+// in the same batch must be contained within the same directory, and the directory must 
+// contain no other files. 
 
 
 // INSTRUCTIONS:

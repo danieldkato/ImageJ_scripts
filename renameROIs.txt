@@ -1,0 +1,48 @@
+// Last updated DDK 2016-10-14
+
+// OVERVIEW:
+// Use this macro to rename every ROI open in ROI manager according to its numeric
+// index. An ROI's numeric index is the number displayed within its boundaries when 
+// overlaid on an image (indices are assigned by ImageJ according to the order in 
+// which the ROIs are added to ROI manager).This is useful because it ensures that
+// the number displayed in every ROI matches its name in ROI manager, in case it
+// to be selected for editing, etc.       
+
+
+// REQUREIMENTS:
+// This macro assumes that ROI manager is already open and the ROIs to be renamed
+// have been loaded.
+
+
+// INSTRUCTIONS:
+// There are two ways to run this macro:
+// 1) By installing the macro: 
+// 	a) In Fiji, open Plugins>Macros>Install... and choose this .txt file.
+// 	b) Go to Plugins>Macros and choose Rename ROIs.
+//
+// 2) Without installing the macro:
+//	a) Go to File>New>Script... 
+//	b) In the script editor, go to File>Open... and select this .txt file
+//	c) Press 'Run' in the script editor.
+
+macro "Rename ROIs" {
+	n = roiManager("count");
+
+	for(i = 0; i < n; i++){
+	
+		roiManager("Select",i);
+
+	
+
+		if(i<9){name = '00'+i+1;}
+	
+		else if (i>=9 && i<99){name = '0'+i+1;}
+	
+		else if (i>=99){name = i+1;}
+	
+	
+
+		roiManager("rename",name);
+	
+	}
+}

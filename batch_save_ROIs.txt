@@ -1,0 +1,84 @@
+// Last updated DDK 2016-09-26
+
+// OVERVIEW:
+// Use this macro to import batches of text files containing coordinates for different ROIs. 
+
+
+// REQUIREMENTS:
+// 1) Fiji, available at http://fiji.sc/
+
+// Each text file to be imported must be formatted as a 2-column .txt file where each row
+// represents a point in the contour of a single ROI, and the first and second columns define 
+// the X- and Y- coordinates, respectively, of each point. All .txt files to be imported 
+// in the same batch must be contained within the same directory, and the directory must 
+// contain no other files. 
+
+
+// INSTRUCTIONS:
+// In an instance of Fiji, open the original file over which the ROIs are to be overlaid.
+// Then, install this macro. The macro can either be installed permanently or only for 
+// the current Fiji session. 
+
+// To install the macro permanently, copy and paste the code below into 
+// Fiji.app/macros/StartupMacros.fiji. To install the macro only for the current Fiji
+// session, go to Plugins>Macros>Install... and select this file. 
+
+// Once the macro has been installed, go to Plugins>Macros>Batch Import ROIs... and 
+// select the directory containing the .txt files to be imported. Check 'Show all' in
+// ROI manager to see all ROIs simultaneously.
+
+
+macro "Batch Save ROI Coordinates..."{
+folder = getDirectory("Output directory");
+run("ROI Manager..."); 
+nROIs = roiManager("count")
+for(j=0; j < nROIs; j++){
+		roiManager("Select", j);
+
+                if (j<9){baseName = '00'+j + 1;}
+                else if (j>=9 && j<99){ baseName = '0'+ j + 1;}
+		else if (j>=99){baseName = j + 1;}		
+
+		fullPath = folder + baseName;
+		saveAs("XY Coordinates", fullPath);
+	}
+}
+
+
+
+
+/*macro "Batch Import ROIs..."{
+folder = getDirectory("Input directory");
+
+print(folder);
+for (i = 0; i < lengthOf(folder); i++){
+	if (substring(folder, i, i+1) == '\\'){
+		folder = substring(folder, 0, i+1) + substring(folder, i, lengthOf(folder));
+		i = i+1;
+	}
+}
+print(folder);
+
+processFolder(folder);
+
+function processFolder(folder){
+	list = getFileList(folder);
+	//print(list.length);
+	run("ROI Manager...");
+        for(j = 0; j < list.length; j++){
+		//print(folder + list[j]);
+		processFile(folder + list[j]);
+                roiManager("Select", j);
+                if (j<9){str = '00'+j + 1;}
+                else if (j>=9 && j<99){ str = '0'+ j + 1;}
+		else if (j>=99){str = j + 1;}
+                roiManager("Rename", str);
+	}
+}
+
+function processFile(input){
+	print("open="+input);
+	run("XY Coordinates... ", "open="+input);
+	roiManager("Add");
+}
+}*/

@@ -1,0 +1,288 @@
+macro "Calculate F/F0" {
+
+// Calculates F/F0.
+// Average over trials and then divide all the frames in the average movie by an average baseline frame.
+
+filepath = getDirectory("Select directory containing images");
+
+// replace single backslashes with double ones
+for (i = 0; i < lengthOf(filepath); i++) {
+	if (substring(filepath, i, i+1) == '\\') {
+		filepath = substring(filepath, 0, i+1) + substring(filepath, i, lengthOf(filepath));
+		i = i+1;
+	}
+}
+print(filepath);
+
+// Calculate average baseline
+baselineFrame = getString("baseline frame (2-digit)", "09");
+run("Image Sequence...", "open=["+filepath+"\\trial00 frame00.tif] number=4003 starting=1 increment=1 scale=100 file=frame"+baselineFrame);
+rename("stack");
+run("32-bit");
+run("Subtract...", "stack value=32768");
+run("Z Project...", "start=1 stop=40 projection=[Average Intensity]");
+rename("baseline");
+selectWindow("stack");
+close();
+
+// Determine # of frames
+run("Image Sequence...", "open=["+filepath+"\\trial00 frame00.tif] number=4003 starting=1 increment=1 scale=100 file=trial00");
+rename("stack");
+nFrames = nSlices;
+selectWindow("stack");
+close();
+// nFrames = getNumber("total # of frames", 100);
+
+// Start building an average movie with the very first frame
+run("Image Sequence...", "open=["+filepath+"\\trial00 frame00.tif] number=4003 starting=1 increment=1 scale=100 file=frame00");
+rename("stack");
+run("32-bit");
+run("Subtract...", "stack value=32768");
+run("Z Project...", "start=1 stop=40 projection=[Average Intensity]");
+rename("Result");
+selectWindow("stack");
+close();
+
+// Grow the average movie stack using all the other frames
+for (i=1; i<nFrames; i++) {
+	i = round(i);
+	if (i < 10)
+		s="0"+i;
+	else
+		s=i;
+	print(s);
+	run("Image Sequence...", "open=["+filepath+"\\trial00 frame"+s+".tif] number=4003 starting=1 increment=1 scale=100 file=frame"+s);
+	rename("stack");
+	run("32-bit");
+	run("Subtract...", "stack value=32768");
+	run("Z Project...", "start=1 stop=40 projection=[Average Intensity]");
+	run("Copy");
+	close();
+	selectWindow("Result");
+	run("Add Slice");
+	run("Paste");
+	selectWindow("stack");
+	close();
+}
+
+// Divide the average movie by the baseline
+imageCalculator("Divide create 32-bit stack", "Result","baseline");
+selectWindow("Result");
+close();
+selectWindow("Result of Result");
+rename("Result");
+run("Subtract...", "stack value=1.0");
+
+// Express numbers as changes per mil (in other words, units of 0.1%)
+run("Multiply...", "stack value=1000");
+run("Save", "save="+filepath+"\\StackRaw.tif");
+
+//run("Duplicate...", "title=[spatially filtered] duplicate");
+//run("Bandpass Filter...", "filter_large=200 filter_small=10 suppress=None tolerance=5 autoscale saturate process");
+//run("Save", "save="+filepath+"\\StackSpatiallyFiltered.tif");
+
+selectWindow("StackRaw.tif");
+run("Duplicate...", "title=[gaussian filtered] duplicate");
+run("Gaussian Blur...", "radius=8 stack");
+setSlice(17);
+run("Brightness/Contrast...");
+run("Enhance Contrast", "saturated=0.5");
+rename("gaussian filtered");
+run("Save", "save="+filepath+"\\StackGaussianFiltered.tif");
+
+// Close unneeded windows
+selectWindow("baseline");
+close();
+selectWindow("StackRaw.tif");
+close();
+
+// temporal average
+selectWindow("StackGaussianFiltered.tif");
+run("Z Project...", "start=13 stop=24 projection=[Average Intensity]");
+
+}
+
+macro "Calculate deltaF/F0" {
+
+// Calculates delta F/F0.
+// Average over trials and then divide all the frames in the average movie by an average baseline frame.
+
+filepath = getDirectory("Select directory containing images");
+
+// replace single backslashes with double ones
+for (i = 0; i < lengthOf(filepath); i++) {
+	if (substring(filepath, i, i+1) == '\\') {
+		filepath = substring(filepath, 0, i+1) + substring(filepath, i, lengthOf(filepath));
+		i = i+1;
+	}
+}
+print(filepath);
+
+// Calculate average baseline
+baselineFrame = getString("baseline frame (2-digit)", "09");
+run("Image Sequence...", "open=["+filepath+"\\trial00 frame00.tif] number=4003 starting=1 increment=1 scale=100 file=frame"+baselineFrame);
+rename("stack");
+run("32-bit");
+run("Subtract...", "stack value=32768");
+run("Z Project...", "start=1 stop=40 projection=[Average Intensity]");
+rename("baseline");
+selectWindow("stack");
+close();
+
+// Determine # of frames
+run("Image Sequence...", "open=["+filepath+"\\trial00 frame00.tif] number=4003 starting=1 increment=1 scale=100 file=trial00");
+rename("stack");
+nFrames = nSlices;
+selectWindow("stack");
+close();
+
+// Start building an average movie with the very first frame
+run("Image Sequence...", "open=["+filepath+"\\trial00 frame00.tif] number=4003 starting=1 increment=1 scale=100 file=frame00");
+rename("stack");
+run("32-bit");
+run("Subtract...", "stack value=32768");
+run("Z Project...", "start=1 stop=40 projection=[Average Intensity]");
+rename("Result");
+selectWindow("stack");
+close();
+
+// nFrames = getNumber("total # of frames", 100);
+
+// Grow the average movie stack using all the other frames
+for (i=1; i<nFrames; i++) {
+	i = round(i);
+	if (i < 10)
+		s="0"+i;
+	else
+		s=i;
+	print(s);
+	run("Image Sequence...", "open=["+filepath+"\\trial00 frame"+s+".tif] number=4003 starting=1 increment=1 scale=100 file=frame"+s);
+	rename("stack");
+	run("32-bit");
+	run("Subtract...", "stack value=32768");
+	run("Z Project...", "start=1 stop=40 projection=[Average Intensity]");
+	run("Copy");
+	close();
+	selectWindow("Result");
+	run("Add Slice");
+	run("Paste");
+	selectWindow("stack");
+	close();
+}
+
+// Subtract baseline from average movie
+imageCalculator("Subtract create 32-bit stack", "Result","baseline");
+selectWindow("Result");
+close();
+selectWindow("Result of Result");
+rename("Result");
+
+// Divide delta F movie by the baseline
+imageCalculator("Divide create 32-bit stack", "Result","baseline");
+selectWindow("Result");
+close();
+selectWindow("Result of Result");
+rename("Result");
+
+// Express numbers as percent change
+run("Multiply...", "stack value=100");
+run("Save", "save="+filepath+"\\StackRaw.tif");
+
+//run("Duplicate...", "title=[spatially filtered] duplicate");
+//run("Bandpass Filter...", "filter_large=200 filter_small=10 suppress=None tolerance=5 autoscale saturate process");
+//run("Save", "save="+filepath+"\\StackSpatiallyFiltered.tif");
+
+selectWindow("StackRaw.tif");
+run("Duplicate...", "title=[gaussian filtered] duplicate");
+run("Gaussian Blur...", "radius=32 stack");
+setSlice(17);
+run("Brightness/Contrast...");
+run("Enhance Contrast", "saturated=0.5");
+rename("gaussian filtered");
+run("Save", "save="+filepath+"\\StackGaussianFiltered.tif");
+
+// Close unneeded windows
+selectWindow("baseline");
+close();
+selectWindow("StackRaw.tif");
+close();
+}
+
+
+
+macro "Process Frames2" {
+
+// This is intended to function like the above macro, but
+// with the change of smoothing the individual averages and baseline before the division.
+
+filepath = getDirectory("Select directory containing images");
+
+// replace single backslashes with double ones
+for (i = 0; i < lengthOf(filepath); i++) {
+	if (substring(filepath, i, i+1) == '\\') {
+		filepath = substring(filepath, 0, i+1) + substring(filepath, i, lengthOf(filepath));
+		i = i+1;
+	}
+}
+print(filepath);
+
+run("Image Sequence...", "open=["+filepath+"\\trial00 frame00.tif] number=4003 starting=1 increment=1 scale=100 file=frame09");
+rename("stack");
+run("32-bit");
+run("Subtract...", "stack value=32768");
+run("Z Project...", "start=1 stop=40 projection=[Average Intensity]");
+run("Gaussian Blur...", "radius=4 stack");
+rename("baseline");
+selectWindow("stack");
+close();
+
+run("Image Sequence...", "open=["+filepath+"\\trial00 frame00.tif] number=4003 starting=1 increment=1 scale=100 file=frame00");
+rename("stack");
+run("32-bit");
+run("Subtract...", "stack value=32768");
+run("Z Project...", "start=1 stop=40 projection=[Average Intensity]");
+rename("Result");
+selectWindow("stack");
+close();
+
+nFrames = getNumber("total # of frames", 100);
+
+for (i=1; i<nFrames; i++) {
+	if (i < 10)
+		s="0"+i;
+	else
+		s=i;
+	run("Image Sequence...", "open=["+filepath+"\\trial00 frame"+s+".tif] number=4003 starting=1 increment=1 scale=100 file=frame"+s);
+	rename("stack");
+	run("32-bit");
+	run("Subtract...", "stack value=32768");
+	run("Z Project...", "start=1 stop=40 projection=[Average Intensity]");
+	run("Copy");
+	close();
+	selectWindow("Result");
+	run("Add Slice");
+	run("Paste");
+	selectWindow("stack");
+	close();
+}
+run("Save", "save="+filepath+"\\StackRawProcess2.tif");
+
+run("Gaussian Blur...", "radius=4 stack");
+run("Brightness/Contrast...");
+run("Enhance Contrast", "saturated=0.5");
+rename("gaussian filtered");
+
+imageCalculator("Divide create 32-bit stack", "gaussian filtered","baseline");
+run("Subtract...", "stack value=1");
+run("Multiply...", "stack value=1000");
+run("Save", "save="+filepath+"\\GaussProcess2.tif");
+
+}
+
+
+macro "Frame-By-Frame Plot" {
+	xx = 10;
+	yy = nSlices / xx;
+	run("Time Stamper", "starting=-1 time=0.10 x=" + xx + " y=" + yy + " font=60 decimal=1 suffix=s");
+	run("Make Montage...", "columns=" + xx + " rows=" + yy + " scale=0.25 first=1 last=100 increment=1 border=1");
+}

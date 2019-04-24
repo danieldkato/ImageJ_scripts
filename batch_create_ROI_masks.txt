@@ -1,0 +1,44 @@
+// Last updated DDK 2018-08-07
+
+// OVERVIEW:
+// Use this macro to import batches of TIFFs containing binary masks for different ROIs. Each
+// TIFF is a binary mask for a single ROI. In each TIFF, all pixels in the corresponding ROI 
+// are black and all other pixels are white.
+
+
+// REQUIREMENTS:
+// 1) Fiji, available at http://fiji.sc/
+
+
+// INSTRUCTIONS:
+// In an instance of Fiji, open the original file over which the ROIs are to be overlaid. 
+// Then, install this macro. The macro can either be installed permanently or only for the 
+// current Fiji session. 
+
+// To install the macro permanently, copy and paste the code below into 
+// Fiji.app/macros/StartupMacros.fiji. To install the macro only for the current Fiji
+// session, go to Plugins>Macros>Install... and select this file. 
+
+// Once the macro has been installed, go to Plugins>Macros>Batch Create ROI Masks... and 
+// select the directory to which the output TIFFs should be saved. Check 'Show all' in
+// ROI manager to see all ROIs simultaneously.
+
+
+macro "Batch Create ROI Masks..."{
+folder = getDirectory("Output directory");
+run("ROI Manager..."); 
+nROIs = roiManager("count")
+for(j=0; j < nROIs; j++){
+		roiManager("Select", j);
+
+                if (j<9){baseName = '00'+j + 1;}
+                else if (j>=9 && j<99){ baseName = '0'+ j + 1;}
+		else if (j>=99){baseName = j + 1;}		
+
+		fullPath = folder + baseName;
+		run("Create Mask");
+		saveAs("Tiff", fullPath);
+		run("Close");
+	}
+}
+
